@@ -1,0 +1,3 @@
+/home/gemini/Project/New_chat/build/CMakeFiles/chat_server.dir
+/home/gemini/Project/New_chat/build/CMakeFiles/edit_cache.dir
+/home/gemini/Project/New_chat/build/CMakeFiles/rebuild_cache.dir

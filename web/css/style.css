@@ -1,0 +1,201 @@
+/* GitHub 风格基础样式 */
+:root {
+    --color-bg-primary: #ffffff;
+    --color-bg-secondary: #f6f8fa;
+    --color-border: #e1e4e8;
+    --color-text-primary: #24292e;
+    --color-text-secondary: #586069;
+    --color-text-muted: #6a737d;
+    --color-accent: #0366d6;
+    --color-accent-hover: #005cc5;
+    --color-btn-bg: #fafbfc;
+    --color-btn-border: #1b1f2326;
+    --color-btn-hover-bg: #f3f4f6;
+    --color-btn-active-bg: #dee2e5;
+    --shadow-card: 0 1px 3px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.02);
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
+    background-color: var(--color-bg-secondary);
+    color: var(--color-text-primary);
+    line-height: 1.5;
+    margin: 0;
+    -webkit-font-smoothing: antialiased;
+}
+
+/* 卡片容器（用于登录/注册卡片） */
+.bg-white\/80 {
+    background-color: var(--color-bg-primary) !important;
+    backdrop-filter: none !important;
+    border: 1px solid var(--color-border) !important;
+    border-radius: 6px !important;
+    box-shadow: var(--shadow-card) !important;
+}
+
+/* 输入框 */
+input[type="text"], input[type="password"], input[type="email"], input[type="tel"], textarea, select {
+    border: 1px solid var(--color-border) !important;
+    border-radius: 6px !important;
+    padding: 0.5rem 0.75rem !important;
+    font-size: 14px !important;
+    line-height: 1.5 !important;
+    color: var(--color-text-primary) !important;
+    background-color: var(--color-bg-primary) !important;
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out !important;
+}
+
+input:focus, textarea:focus, select:focus {
+    border-color: var(--color-accent) !important;
+    outline: 0 !important;
+    box-shadow: 0 0 0 3px rgba(3,102,214,0.3) !important;
+}
+
+/* 按钮 */
+button, .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.5rem 1rem;
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 1.5;
+    color: var(--color-text-primary);
+    background-color: var(--color-btn-bg);
+    border: 1px solid var(--color-btn-border);
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.2s, border-color 0.2s;
+    text-decoration: none;
+    white-space: nowrap;
+    vertical-align: middle;
+    user-select: none;
+}
+
+button:hover, .btn:hover {
+    background-color: var(--color-btn-hover-bg);
+    border-color: #1b1f2329;
+    text-decoration: none;
+}
+
+button:active, .btn:active {
+    background-color: var(--color-btn-active-bg);
+    border-color: #1b1f2326;
+    box-shadow: inset 0 1px 2px rgba(0,0,0,0.075);
+}
+
+button:focus, .btn:focus {
+    outline: 0;
+    box-shadow: 0 0 0 3px rgba(3,102,214,0.3);
+}
+
+/* 主按钮 (blue) */
+.bg-blue-500 {
+    background-color: var(--color-accent) !important;
+    border-color: rgba(27,31,35,0.15) !important;
+    color: white !important;
+}
+
+.bg-blue-500:hover {
+    background-color: var(--color-accent-hover) !important;
+}
+
+.bg-blue-500:active {
+    background-color: #044289 !important;
+}
+
+/* 文本链接 */
+a {
+    color: var(--color-accent);
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+/* 文字颜色 */
+.text-gray-800 { color: var(--color-text-primary) !important; }
+.text-gray-700 { color: var(--color-text-primary) !important; }
+.text-gray-600 { color: var(--color-text-secondary) !important; }
+.text-gray-500 { color: var(--color-text-muted) !important; }
+.text-gray-400 { color: #959da5 !important; }
+.text-green-500 { color: #28a745 !important; }
+
+/* 聊天界面左侧边栏 */
+.bg-white {
+    background-color: var(--color-bg-primary) !important;
+    border-right: 1px solid var(--color-border) !important;
+}
+
+/* 好友项悬停 */
+.hover\:bg-gray-100:hover {
+    background-color: #f1f1f1 !important;
+}
+
+/* 消息气泡 */
+.bg-gray-100 {
+    background-color: #f1f1f1 !important;
+    border: 1px solid var(--color-border) !important;
+}
+
+.bg-blue-500.text-white {
+    background-color: var(--color-accent) !important;
+    color: white !important;
+    border: 1px solid var(--color-accent) !important;
+}
+
+/* 聊天头部、底部边框 */
+.border-b, .border-t {
+    border-color: var(--color-border) !important;
+}
+
+/* 圆形头像（简化为普通圆形，背景渐变保留） */
+.w-10.h-10.rounded-full {
+    border-radius: 50% !important;
+}
+
+/* Toast 样式微调 */
+.toast {
+    background: var(--color-bg-primary);
+    border: 1px solid var(--color-border);
+    border-radius: 6px;
+    box-shadow: var(--shadow-card);
+    border-left-width: 4px;
+}
+
+.toast.success { border-left-color: #28a745; }
+.toast.error { border-left-color: #cb2431; }
+.toast.info { border-left-color: var(--color-accent); }
+
+/* 保留原有动效 */
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+.loading-spinner {
+    display: inline-block;
+    width: 1rem;
+    height: 1rem;
+    border: 2px solid rgba(255,255,255,0.3);
+    border-radius: 50%;
+    border-top-color: white;
+    animation: spin 0.6s linear infinite;
+}
+
+.message-enter {
+    animation: fadeInUp 0.3s ease-out;
+}
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

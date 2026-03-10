@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>登录 · Chat</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 自定义样式 -->
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="bg-gradient-to-br from-blue-50 to-gray-100 min-h-screen flex items-center justify-center p-4">
+    <div class="w-full max-w-md">
+        <!-- 卡片容器 -->
+        <div class="bg-white rounded-lg shadow-md border border-gray-200 overflow-hidden">
+            <!-- 标题区域（动态显示当前模式） -->
+            <div class="p-6 pb-2">
+                <h1 id="authTitle" class="text-3xl font-bold text-gray-800 mb-2 text-center">Welcome Back</h1>
+                    <p id="authSubtitle" class="text-gray-500 text-center mb-8">使用你的账号继续</p>
+            </div>
+
+            <!-- 登录面板 -->
+            <div id="loginPanel" class="p-6 pt-2">
+                <form id="loginForm" class="space-y-5">
+                    <div>
+                        <label for="username" class="block text-sm font-medium text-gray-700 mb-1">用户名</label>
+                        <input type="text" id="username" name="username" required
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition text-sm"
+                               placeholder="请输入用户名">
+                    </div>
+                    <div>
+                        <label for="password" class="block text-sm font-medium text-gray-700 mb-1">密码</label>
+                        <input type="password" id="password" name="password" required
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition text-sm"
+                               placeholder="••••••••">
+                    </div>
+                    <button type="submit" id="loginBtn"
+                            class="w-full bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-md transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98] shadow-sm flex items-center justify-center gap-2 text-sm">
+                        <span>登录</span>
+                        <span class="hidden loading-spinner"></span>
+                    </button>
+                </form>
+            </div>
+
+            <!-- 注册面板 (初始隐藏) -->
+            <div id="registerPanel" class="p-6 pt-2 hidden">
+                <form id="registerForm" class="space-y-5">
+                    <div>
+                        <label for="regUsername" class="block text-sm font-medium text-gray-700 mb-1">用户名</label>
+                        <input type="text" id="regUsername" required
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition text-sm"
+                               placeholder="4-20个字符">
+                    </div>
+                    <div>
+                        <label for="regPassword" class="block text-sm font-medium text-gray-700 mb-1">密码</label>
+                        <input type="password" id="regPassword" required
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition text-sm"
+                               placeholder="至少6位">
+                    </div>
+                    <div>
+                        <label for="confirmPwd" class="block text-sm font-medium text-gray-700 mb-1">确认密码</label>
+                        <input type="password" id="confirmPwd" required
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition text-sm"
+                               placeholder="再次输入密码">
+                    </div>
+                    <button type="submit" id="registerBtn"
+                            class="w-full bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-md transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98] shadow-sm flex items-center justify-center gap-2 text-sm">
+                        注册
+                    </button>
+                </form>
+            </div>
+
+            <!-- 底部导航按钮 -->
+            <div class="flex border-t border-gray-200">
+                <button id="switchToLogin"
+                        class="flex-1 py-3 text-sm font-medium text-center transition-all duration-200 border-b-2 border-blue-500 text-blue-600 bg-gray-50">
+                    登录
+                </button>
+                <button id="switchToRegister"
+                        class="flex-1 py-3 text-sm font-medium text-center transition-all duration-200 border-b-2 border-transparent text-gray-600 hover:text-blue-600 bg-gray-50">
+                    注册
+                </button>
+            </div>
+        </div>
+
+        <!-- Toast 提示容器 -->
+        <div id="toast" class="fixed top-5 right-5 z-50"></div>
+    </div>
+
+    <script src="js/auth.js"></script>
+</body>
+</html>

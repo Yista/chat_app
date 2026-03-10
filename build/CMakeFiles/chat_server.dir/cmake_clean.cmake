@@ -1,0 +1,41 @@
+file(REMOVE_RECURSE
+  "CMakeFiles/chat_server.dir/src/database/db_manager.cpp.o"
+  "CMakeFiles/chat_server.dir/src/database/db_manager.cpp.o.d"
+  "CMakeFiles/chat_server.dir/src/database/friend_dao.cpp.o"
+  "CMakeFiles/chat_server.dir/src/database/friend_dao.cpp.o.d"
+  "CMakeFiles/chat_server.dir/src/database/group_dao.cpp.o"
+  "CMakeFiles/chat_server.dir/src/database/group_dao.cpp.o.d"
+  "CMakeFiles/chat_server.dir/src/database/message_dao.cpp.o"
+  "CMakeFiles/chat_server.dir/src/database/message_dao.cpp.o.d"
+  "CMakeFiles/chat_server.dir/src/database/user_dao.cpp.o"
+  "CMakeFiles/chat_server.dir/src/database/user_dao.cpp.o.d"
+  "CMakeFiles/chat_server.dir/src/handlers/auth_handler.cpp.o"
+  "CMakeFiles/chat_server.dir/src/handlers/auth_handler.cpp.o.d"
+  "CMakeFiles/chat_server.dir/src/handlers/friend_handler.cpp.o"
+  "CMakeFiles/chat_server.dir/src/handlers/friend_handler.cpp.o.d"
+  "CMakeFiles/chat_server.dir/src/handlers/group_handler.cpp.o"
+  "CMakeFiles/chat_server.dir/src/handlers/group_handler.cpp.o.d"
+  "CMakeFiles/chat_server.dir/src/handlers/message_handler.cpp.o"
+  "CMakeFiles/chat_server.dir/src/handlers/message_handler.cpp.o.d"
+  "CMakeFiles/chat_server.dir/src/main.cpp.o"
+  "CMakeFiles/chat_server.dir/src/main.cpp.o.d"
+  "CMakeFiles/chat_server.dir/src/server/http_server.cpp.o"
+  "CMakeFiles/chat_server.dir/src/server/http_server.cpp.o.d"
+  "CMakeFiles/chat_server.dir/src/server/session.cpp.o"
+  "CMakeFiles/chat_server.dir/src/server/session.cpp.o.d"
+  "CMakeFiles/chat_server.dir/src/server/session_manager.cpp.o"
+  "CMakeFiles/chat_server.dir/src/server/session_manager.cpp.o.d"
+  "CMakeFiles/chat_server.dir/src/server/websocket_server.cpp.o"
+  "CMakeFiles/chat_server.dir/src/server/websocket_server.cpp.o.d"
+  "CMakeFiles/chat_server.dir/src/utils/config.cpp.o"
+  "CMakeFiles/chat_server.dir/src/utils/config.cpp.o.d"
+  "CMakeFiles/chat_server.dir/src/utils/logger.cpp.o"
+  "CMakeFiles/chat_server.dir/src/utils/logger.cpp.o.d"
+  "chat_server"
+  "chat_server.pdb"
+)
+
+# Per-language clean rules from dependency scanning.
+foreach(lang CXX)
+  include(CMakeFiles/chat_server.dir/cmake_clean_${lang}.cmake OPTIONAL)
+endforeach()
