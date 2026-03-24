@@ -7,6 +7,7 @@ let currentUser = { id: null, username: null };
 let friends = [];                // 好友列表 { id, username, online }
 let currentChat = null;           // 当前聊天对象 { id, username }
 let messages = [];                // 当前聊天的消息列表（用于撤回时更新）
+let pendingRequests = [];         // 待处理请求列表
 
 // ==================== 工具函数 ====================
 function showToast(message, type = 'info', duration = 3000) {
@@ -36,8 +37,10 @@ function checkAuth() {
     }
     currentUser.id = parseInt(id);
     currentUser.username = username;
-    document.getElementById('currentUsername').textContent = username;
-    document.getElementById('avatarInitial').textContent = username.charAt(0).toUpperCase();
+    const currentUsernameEl = document.getElementById('currentUsername');
+    const avatarEl = document.getElementById('avatarInitial');
+    if (currentUsernameEl) currentUsernameEl.textContent = username;
+    if (avatarEl) avatarEl.textContent = username.charAt(0).toUpperCase();
     return true;
 }
 
@@ -192,17 +195,14 @@ function initWebSocket() {
             }
         }
         else if (msg.type === 'private') {
-            // 收到新消息
             if (currentChat && (msg.from_id === currentChat.id || msg.from === currentChat.username)) {
                 displayMessage(msg.from, msg.content, false, msg.msg_id, msg.created_at);
                 messages.push({ id: msg.msg_id, sender_id: msg.from_id, content: msg.content });
             } else {
-                // 非当前聊天对象，可以显示通知或更新好友列表上的未读标记（此处简化）
                 showToast(`来自 ${msg.from} 的新消息`, 'info');
             }
         }
         else if (msg.type === 'private_sent') {
-            // 消息发送回执，更新消息ID
             const lastOwnMsg = document.querySelector('#messageContainer .own:last-child');
             if (lastOwnMsg) {
                 lastOwnMsg.dataset.msgId = msg.msg_id;
@@ -211,16 +211,22 @@ function initWebSocket() {
             }
         }
         else if (msg.type === 'recall') {
-            // 撤回通知
             const targetMsg = document.querySelector(`.message[data-msg-id="${msg.msg_id}"]`);
             if (targetMsg) {
                 const isOwn = targetMsg.classList.contains('own');
                 const recallText = isOwn ? '你撤回了一条消息' : `${msg.from} 撤回了一条消息`;
-                targetMsg.querySelector('p').textContent = recallText;
+                const contentPara = targetMsg.querySelector('p');
+                if (contentPara) {
+                    contentPara.textContent = recallText;
+                    contentPara.classList.add('text-gray-500', 'italic');
+                }
                 const recallBtn = targetMsg.querySelector('.recall-btn');
                 if (recallBtn) recallBtn.remove();
-                // 从本地消息列表中移除或标记
             }
+        }
+        else if (msg.type === 'friend_request') {
+            loadFriendRequests(); // 刷新请求列表和红点
+            showFriendRequestNotification(msg.from, msg.request_id);
         }
         else if (msg.type === 'error') {
             showToast('错误：' + msg.message, 'error');
@@ -229,7 +235,6 @@ function initWebSocket() {
     ws.onclose = () => {
         console.log('WebSocket disconnected');
         showToast('与服务器断开连接', 'error');
-        // 可尝试重连
     };
     ws.onerror = (err) => {
         console.error('WebSocket error:', err);
@@ -248,7 +253,6 @@ function sendMessage() {
             to: currentChat.username,
             content: text
         }));
-        // 立即显示自己消息（等待回执更新msg_id）
         displayMessage('我', text, true, 0, Date.now());
         input.value = '';
     } else {
@@ -258,9 +262,7 @@ function sendMessage() {
 
 // 搜索用户
 async function searchUsers() {
-    console.log('searchUsers called');
     const keyword = document.getElementById('searchInput').value.trim();
-    if (!keyword) return;
     try {
         const response = await fetch(`${API_BASE}/api/users/search`, {
             method: 'POST',
@@ -314,6 +316,122 @@ async function sendFriendRequest(targetId, targetUsername) {
     }
 }
 
+// 好友请求通知弹窗
+function showFriendRequestNotification(fromUsername, requestId) {
+    const notificationDiv = document.createElement('div');
+    notificationDiv.className = 'fixed bottom-4 right-4 bg-white shadow-lg rounded-lg p-4 border border-gray-200 z-50 animate-slide-up';
+    notificationDiv.innerHTML = `
+        <p class="text-sm mb-2">用户 <span class="font-semibold">${fromUsername}</span> 请求添加你为好友</p>
+        <div class="flex gap-2">
+            <button class="accept-btn bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-xs" data-request-id="${requestId}" data-from="${fromUsername}">接受</button>
+            <button class="reject-btn bg-gray-300 hover:bg-gray-400 text-gray-700 px-3 py-1 rounded text-xs" data-request-id="${requestId}">拒绝</button>
+        </div>
+    `;
+    document.body.appendChild(notificationDiv);
+
+    notificationDiv.querySelector('.accept-btn').addEventListener('click', async (e) => {
+        const reqId = e.target.dataset.requestId;
+        await respondToRequest(reqId, 'accept');
+        notificationDiv.remove();
+    });
+
+    notificationDiv.querySelector('.reject-btn').addEventListener('click', async (e) => {
+        const reqId = e.target.dataset.requestId;
+        await respondToRequest(reqId, 'reject');
+        notificationDiv.remove();
+    });
+
+    setTimeout(() => {
+        if (notificationDiv.parentNode) notificationDiv.remove();
+    }, 10000);
+}
+
+// 加载好友请求列表并更新红点
+async function loadFriendRequests() {
+    try {
+        const response = await fetch(`${API_BASE}/api/friends/requests`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ user_id: currentUser.id })
+        });
+        const data = await response.json();
+        if (Array.isArray(data)) {
+            pendingRequests = data;
+            updateRequestBadge();
+            renderRequestModal(); // 如果模态框打开，刷新内容
+        } else {
+            console.error('获取请求列表失败', data);
+        }
+    } catch (err) {
+        console.error('loadFriendRequests error:', err);
+    }
+}
+
+// 更新红点
+function updateRequestBadge() {
+    const badge = document.getElementById('requestBadge');
+    if (pendingRequests.length > 0) {
+        badge.textContent = pendingRequests.length > 9 ? '9+' : pendingRequests.length;
+        badge.classList.remove('hidden');
+    } else {
+        badge.classList.add('hidden');
+    }
+}
+
+// 渲染模态框内容
+function renderRequestModal() {
+    const listDiv = document.getElementById('requestList');
+    const noRequestsDiv = document.getElementById('noRequests');
+    if (!listDiv || !noRequestsDiv) return;
+    listDiv.innerHTML = '';
+
+    if (pendingRequests.length === 0) {
+        noRequestsDiv.classList.remove('hidden');
+        return;
+    }
+    noRequestsDiv.classList.add('hidden');
+
+    pendingRequests.forEach(req => {
+        const item = document.createElement('div');
+        item.className = 'flex items-center justify-between p-2 border-b last:border-0';
+        item.innerHTML = `
+            <div>
+                <p class="font-medium">${req.from_username}</p>
+                <p class="text-xs text-gray-400">${new Date(req.created_at).toLocaleString()}</p>
+            </div>
+            <div class="flex gap-2">
+                <button class="accept-request bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-xs" data-request-id="${req.request_id}">接受</button>
+                <button class="reject-request bg-gray-300 hover:bg-gray-400 text-gray-700 px-3 py-1 rounded text-xs" data-request-id="${req.request_id}">拒绝</button>
+            </div>
+        `;
+        item.querySelector('.accept-request').addEventListener('click', () => respondToRequest(req.request_id, 'accept'));
+        item.querySelector('.reject-request').addEventListener('click', () => respondToRequest(req.request_id, 'reject'));
+        listDiv.appendChild(item);
+    });
+}
+
+// 处理同意/拒绝请求
+async function respondToRequest(requestId, action) {
+    try {
+        const response = await fetch(`${API_BASE}/api/friends/respond`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ request_id: requestId, user_id: currentUser.id, action })
+        });
+        const data = await response.json();
+        if (data.status === 'ok') {
+            showToast('操作成功', 'success');
+            // 重新加载请求列表和好友列表
+            await loadFriendRequests();
+            await loadFriends();
+        } else {
+            showToast('操作失败：' + (data.message || '未知错误'), 'error');
+        }
+    } catch (err) {
+        showToast('网络错误', 'error');
+    }
+}
+
 // 登出
 function logout() {
     if (ws) ws.close();
@@ -331,16 +449,60 @@ document.addEventListener('DOMContentLoaded', () => {
     // 初始化 WebSocket
     initWebSocket();
 
+    // 加载好友请求列表（红点）
+    loadFriendRequests();
+
     // 绑定事件
-    document.getElementById('searchBtn').addEventListener('click', searchUsers);
-    document.getElementById('sendBtn').addEventListener('click', sendMessage);
-    document.getElementById('messageInput').addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') sendMessage();
-    });
-    document.getElementById('logoutBtn').addEventListener('click', logout);
+    const searchBtn = document.getElementById('searchBtn');
+    if (searchBtn) searchBtn.addEventListener('click', searchUsers);
+
+    const sendBtn = document.getElementById('sendBtn');
+    const messageInput = document.getElementById('messageInput');
+    if (sendBtn) sendBtn.addEventListener('click', sendMessage);
+    if (messageInput) {
+        messageInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') sendMessage();
+        });
+    }
+
+    const logoutBtn = document.getElementById('logoutBtn');
+    if (logoutBtn) logoutBtn.addEventListener('click', logout);
+
+    // 点击其他区域关闭搜索结果面板
     document.addEventListener('click', (e) => {
         if (!e.target.closest('#searchResults') && !e.target.closest('#searchBtn')) {
-            document.getElementById('searchResults').classList.add('hidden');
+            const resultsDiv = document.getElementById('searchResults');
+            if (resultsDiv) resultsDiv.classList.add('hidden');
         }
     });
+
+    // 好友申请入口点击事件
+    const requestEntry = document.getElementById('friendRequestEntry');
+    if (requestEntry) {
+        requestEntry.addEventListener('click', () => {
+            const modal = document.getElementById('requestModal');
+            if (modal) {
+                renderRequestModal(); // 刷新内容
+                modal.classList.remove('hidden');
+            }
+        });
+    }
+
+    // 关闭模态框
+    const closeModalBtn = document.getElementById('closeRequestModal');
+    if (closeModalBtn) {
+        closeModalBtn.addEventListener('click', () => {
+            document.getElementById('requestModal').classList.add('hidden');
+        });
+    }
+
+    // 点击模态框背景关闭
+    const modal = document.getElementById('requestModal');
+    if (modal) {
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                modal.classList.add('hidden');
+            }
+        });
+    }
 });

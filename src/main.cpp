@@ -93,6 +93,10 @@ int main() {
         return friendHandler->handleSendRequest(body);
     });
 
+    httpServer->registerPost("/api/friends/requests", [friendHandler](const std::string& body) {
+    return friendHandler->handleGetRequests(body);
+    });
+
     httpServer->registerPost("/api/friends/respond", [friendHandler](const std::string& body) {
         return friendHandler->handleRespondRequest(body);
     });

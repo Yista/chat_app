@@ -9,8 +9,8 @@ struct FriendRequest {
     int requestorId = 0;
     int requesteeId = 0;
     std::string status; // "pending", "accepted", "rejected", "canceled"
-    std::chrono::system_clock::time_point createdAt;
-    std::chrono::system_clock::time_point updatedAt;
+    std::string createdAt;           // 改为字符串，存储从数据库读出的时间
+    std::string requestorUsername;   // 新增，存储请求者用户名
 };
 
 struct Friendship {

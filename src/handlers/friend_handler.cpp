@@ -8,30 +8,42 @@ FriendHandler::FriendHandler(std::shared_ptr<FriendDAO> friendDao,
                              std::shared_ptr<UserDAO> userDao,
                              std::shared_ptr<SessionManager> sessionMgr)
     : friendDao_(friendDao), userDao_(userDao), sessionMgr_(sessionMgr) {}
-
+    
 std::string FriendHandler::handleSearchUsers(const std::string& body) {
     try {
         auto j = json::parse(body);
         std::string keyword = j["keyword"];
-        int currentUserId = j["user_id"]; // 需要前端传入当前用户ID，或者从session获取。这里简化，前端传user_id。
+        int currentUserId = j["user_id"];
 
-        auto results = friendDao_->searchUsers(currentUserId, keyword);
-        json resp = json::array();
-        for (const auto& pair : results) {
-            const User& u = pair.first;
-            bool isFriend = pair.second;
-            json item = {
-                {"id", u.id},
-                {"username", u.username},
-                {"avatar", u.avatar},
-                {"is_friend", isFriend}
-            };
-            resp.push_back(item);
+        // 从 UserDAO 获取用户列表
+        auto users = userDao_->searchUsers(keyword, currentUserId);
+
+        // 构造结果数组
+        json result = json::array();
+        for (const auto& [id, username] : users) {
+            bool isFriend = friendDao_->areFriends(currentUserId, id);
+            bool online = (sessionMgr_->getSession(username) != nullptr);
+            result.push_back({
+                {"id", id},
+                {"username", username},
+                {"is_friend", isFriend},
+                {"online", online}
+            });
         }
-        return json{{"status", "ok"}, {"users", resp}}.dump();
+
+        // 排序：好友优先，然后按id升序
+        std::sort(result.begin(), result.end(),
+            [](const json& a, const json& b) {
+                bool aFriend = a["is_friend"];
+                bool bFriend = b["is_friend"];
+                if (aFriend != bFriend) return aFriend > bFriend;
+                return a["id"] < b["id"];
+            });
+
+        return result.dump();
     } catch (const std::exception& e) {
         LOG_ERROR("handleSearchUsers error: " + std::string(e.what()));
-        return R"({"status":"error","message":"Invalid request"})";
+        return R"({"error":"Invalid request"})";
     }
 }
 
@@ -81,29 +93,22 @@ std::string FriendHandler::handleSendRequest(const std::string& body) {
 std::string FriendHandler::handleRespondRequest(const std::string& body) {
     try {
         auto j = json::parse(body);
-        int userId = j["user_id"];          // 当前用户ID
+        int userId = j["user_id"];          // 当前用户ID（请求接收者）— 暂未使用，可保留
         int requestId = j["request_id"];
         std::string action = j["action"];   // "accept" or "reject"
 
-        // 获取请求信息，验证请求的接收者是否是当前用户
-        auto reqOpt = friendDao_->getPendingRequest(0,0); // 需要实现getRequestById
-        // 简化：暂时不实现，先假设前端传了正确的请求ID，且当前用户是接收者
-        // 为了快速实现，我们直接调用 acceptRequest/rejectRequest
-
         bool success = false;
         if (action == "accept") {
-            success = friendDao_->acceptRequest(requestId);
+            success = friendDao_->acceptRequest(requestId);  // 修改为单参数
         } else if (action == "reject") {
-            success = friendDao_->rejectRequest(requestId);
+            success = friendDao_->rejectRequest(requestId);  // 修改为单参数
         }
 
         if (success) {
-            // 通知请求者（如果在线）
-            // 需要从请求中获取请求者ID，这里简化
-            // 暂不实现
-            return json{{"status", "ok"}, {"message", "Response recorded"}}.dump();
+            // 可选：通知请求者（需要从请求中获取请求者ID，这里暂不实现）
+            return json{{"status", "ok"}, {"message", "操作成功"}}.dump();
         } else {
-            return json{{"status", "error"}, {"message", "Failed to respond"}}.dump();
+            return json{{"status", "error"}, {"message", "操作失败"}}.dump();
         }
     } catch (const std::exception& e) {
         LOG_ERROR("handleRespondRequest error: " + std::string(e.what()));
@@ -111,6 +116,30 @@ std::string FriendHandler::handleRespondRequest(const std::string& body) {
     }
 }
 
+// 获取待处理的好友请求列表
+std::string FriendHandler::handleGetRequests(const std::string& body) {
+    try {
+        auto j = json::parse(body);
+        int userId = j["user_id"];
+
+        auto requests = friendDao_->getIncomingRequests(userId);
+        json result = json::array();
+        for (const auto& req : requests) {
+            result.push_back({
+                {"request_id", req.id},
+                {"from_user_id", req.requestorId},
+                {"from_username", req.requestorUsername},
+                {"created_at", req.createdAt}
+            });
+        }
+        return result.dump();
+    } catch (const std::exception& e) {
+        LOG_ERROR("handleGetRequests error: " + std::string(e.what()));
+        return R"({"error":"Invalid request"})";
+    }
+}
+
+// 通过 WebSocket 通知目标用户有新好友请求
 void FriendHandler::notifyFriendRequest(int targetUserId, const std::string& fromUsername) {
     auto session = sessionMgr_->getSessionById(targetUserId);
     if (session) {
@@ -121,6 +150,7 @@ void FriendHandler::notifyFriendRequest(int targetUserId, const std::string& fro
         session->send(notification.dump());
     }
 }
+
 
 std::string FriendHandler::handleGetFriendList(const std::string& body) {
     try {

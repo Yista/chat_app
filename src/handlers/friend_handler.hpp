@@ -18,6 +18,7 @@ public:
     std::string handleSendRequest(const std::string& body);
     std::string handleRespondRequest(const std::string& body);
     std::string handleGetFriendList(const std::string& body);
+    std::string handleGetRequests(const std::string& body);
     // WebSocket 通知（可选，但为了解耦，可以在 handler 内直接调用 sessionMgr 发送）
     void notifyFriendRequest(int targetUserId, const std::string& fromUsername);
     void notifyRequestResponse(int targetUserId, const std::string& message);

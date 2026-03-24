@@ -2,6 +2,7 @@
 #include "utils/logger.hpp"
 #include <mysql/mysql.h>
 #include <sstream>
+#include <vector>
 
 UserDAO::UserDAO(std::shared_ptr<DBManager> db) : db_(db) {}
 
@@ -96,4 +97,37 @@ bool UserDAO::update(const User& user) {
     if (!conn) return false;
     // 暂未实现
     return false;
+}
+
+std::vector<std::pair<int, std::string>> UserDAO::searchUsers(const std::string& keyword, int excludeUserId) {
+    std::vector<std::pair<int, std::string>> results;
+    MYSQL* conn = db_->getConnection();
+    if (!conn) return results;
+
+    std::string sql;
+    char escaped[256];
+    if (keyword.empty()) {
+        sql = "SELECT id, username FROM users WHERE id != " + std::to_string(excludeUserId) + " ORDER BY id";
+    } else {
+        mysql_real_escape_string(conn, escaped, keyword.c_str(), keyword.length());
+        sql = "SELECT id, username FROM users WHERE id != " + std::to_string(excludeUserId)
+            + " AND username LIKE '%" + escaped + "%' ORDER BY id";
+    }
+
+    if (mysql_query(conn, sql.c_str())) {
+        LOG_ERROR("searchUsers query failed: " + std::string(mysql_error(conn)));
+        return results;
+    }
+
+    MYSQL_RES* res = mysql_store_result(conn);
+    if (!res) return results;
+
+    MYSQL_ROW row;
+    while ((row = mysql_fetch_row(res))) {
+        int id = std::stoi(row[0]);
+        std::string username = row[1] ? row[1] : "";
+        results.emplace_back(id, username);
+    }
+    mysql_free_result(res);
+    return results;
 }

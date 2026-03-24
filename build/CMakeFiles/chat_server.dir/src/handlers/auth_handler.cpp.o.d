@@ -168,6 +168,9 @@ CMakeFiles/chat_server.dir/src/handlers/auth_handler.cpp.o: \
  /usr/include/mysql/mysql_version.h /usr/include/mysql/mysql_time.h \
  /usr/include/mysql/errmsg.h /usr/include/c++/11/stdexcept \
  /home/gemini/Project/New_chat/src/models/user.hpp \
+ /usr/include/c++/11/vector /usr/include/c++/11/bits/stl_vector.h \
+ /usr/include/c++/11/bits/stl_bvector.h \
+ /usr/include/c++/11/bits/vector.tcc \
  /home/gemini/Project/New_chat/src/utils/logger.hpp \
  /usr/include/c++/11/sstream /usr/include/c++/11/istream \
  /usr/include/c++/11/ios /usr/include/c++/11/bits/ios_base.h \
@@ -198,10 +201,7 @@ CMakeFiles/chat_server.dir/src/handlers/auth_handler.cpp.o: \
  /usr/include/c++/11/bits/hashtable_policy.h \
  /usr/include/c++/11/bits/node_handle.h \
  /usr/include/c++/11/bits/unordered_map.h \
- /usr/include/c++/11/bits/erase_if.h /usr/include/c++/11/vector \
- /usr/include/c++/11/bits/stl_vector.h \
- /usr/include/c++/11/bits/stl_bvector.h \
- /usr/include/c++/11/bits/vector.tcc /usr/include/c++/11/cstddef \
+ /usr/include/c++/11/bits/erase_if.h /usr/include/c++/11/cstddef \
  /usr/include/c++/11/iterator /usr/include/c++/11/bits/stream_iterator.h \
  /usr/include/c++/11/forward_list /usr/include/c++/11/bits/forward_list.h \
  /usr/include/c++/11/bits/forward_list.tcc /usr/include/c++/11/map \

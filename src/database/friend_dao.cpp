@@ -1,3 +1,6 @@
+#include <string>
+#include <vector>
+#include <cstring>
 #include "friend_dao.hpp"
 #include "utils/logger.hpp"
 #include <mysql/mysql.h>
@@ -190,18 +193,27 @@ std::vector<FriendRequest> FriendDAO::getIncomingRequests(int userId) {
     std::vector<FriendRequest> requests;
     MYSQL* conn = db_->getConnection();
     if (!conn) return requests;
-    std::string sql = "SELECT id, requestor_id, requestee_id, status, created_at FROM friend_requests WHERE requestee_id = " + std::to_string(userId) + " AND status = 'pending'";
-    if (mysql_query(conn, sql.c_str())) return requests;
+
+    std::string sql = "SELECT r.id, r.requestor_id, u.username, r.created_at "
+                      "FROM friend_requests r JOIN users u ON r.requestor_id = u.id "
+                      "WHERE r.requestee_id = " + std::to_string(userId) + " AND r.status = 'pending' "
+                      "ORDER BY r.created_at DESC";
+
+    if (mysql_query(conn, sql.c_str())) {
+        LOG_ERROR("getIncomingRequests query failed: " + std::string(mysql_error(conn)));
+        return requests;
+    }
     MYSQL_RES* res = mysql_store_result(conn);
     if (!res) return requests;
+
     MYSQL_ROW row;
     while ((row = mysql_fetch_row(res))) {
         FriendRequest req;
         req.id = std::stoi(row[0]);
         req.requestorId = std::stoi(row[1]);
-        req.requesteeId = std::stoi(row[2]);
-        req.status = row[3];
-        // 时间略
+        req.requestorUsername = row[2] ? row[2] : "";
+        req.createdAt = row[3] ? row[3] : "";   // 直接使用字符串时间
+        req.status = "pending";
         requests.push_back(req);
     }
     mysql_free_result(res);

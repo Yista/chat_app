@@ -910,6 +910,10 @@ CMakeFiles/chat_server.dir/src/database/user_dao.cpp.o: ../src/database/user_dao
   /usr/include/mysql/errmsg.h \
   /usr/include/c++/11/stdexcept \
   ../src/models/user.hpp \
+  /usr/include/c++/11/vector \
+  /usr/include/c++/11/bits/stl_vector.h \
+  /usr/include/c++/11/bits/stl_bvector.h \
+  /usr/include/c++/11/bits/vector.tcc \
   ../src/utils/logger.hpp \
   /usr/include/c++/11/sstream \
   /usr/include/c++/11/istream \
@@ -1138,6 +1142,10 @@ CMakeFiles/chat_server.dir/src/handlers/auth_handler.cpp.o: ../src/handlers/auth
   /usr/include/mysql/errmsg.h \
   /usr/include/c++/11/stdexcept \
   ../src/models/user.hpp \
+  /usr/include/c++/11/vector \
+  /usr/include/c++/11/bits/stl_vector.h \
+  /usr/include/c++/11/bits/stl_bvector.h \
+  /usr/include/c++/11/bits/vector.tcc \
   ../src/utils/logger.hpp \
   /usr/include/c++/11/sstream \
   /usr/include/c++/11/istream \
@@ -1178,10 +1186,6 @@ CMakeFiles/chat_server.dir/src/handlers/auth_handler.cpp.o: ../src/handlers/auth
   /usr/include/c++/11/bits/node_handle.h \
   /usr/include/c++/11/bits/unordered_map.h \
   /usr/include/c++/11/bits/erase_if.h \
-  /usr/include/c++/11/vector \
-  /usr/include/c++/11/bits/stl_vector.h \
-  /usr/include/c++/11/bits/stl_bvector.h \
-  /usr/include/c++/11/bits/vector.tcc \
   /usr/include/c++/11/cstddef \
   /usr/include/c++/11/iterator \
   /usr/include/c++/11/bits/stream_iterator.h \
@@ -4970,11 +4974,11 @@ CMakeFiles/chat_server.dir/src/main.cpp.o: ../src/main.cpp \
   ../src/database/user_dao.hpp \
   ../src/database/db_manager.hpp \
   ../src/models/user.hpp \
-  ../src/database/friend_dao.hpp \
   /usr/include/c++/11/vector \
   /usr/include/c++/11/bits/stl_vector.h \
   /usr/include/c++/11/bits/stl_bvector.h \
   /usr/include/c++/11/bits/vector.tcc \
+  ../src/database/friend_dao.hpp \
   ../src/models/friendship.hpp \
   /usr/include/c++/11/chrono \
   /usr/include/c++/11/ratio \

@@ -162,6 +162,9 @@ CMakeFiles/chat_server.dir/src/database/user_dao.cpp.o: \
  /usr/include/mysql/mysql_version.h /usr/include/mysql/mysql_time.h \
  /usr/include/mysql/errmsg.h /usr/include/c++/11/stdexcept \
  /home/gemini/Project/New_chat/src/models/user.hpp \
+ /usr/include/c++/11/vector /usr/include/c++/11/bits/stl_vector.h \
+ /usr/include/c++/11/bits/stl_bvector.h \
+ /usr/include/c++/11/bits/vector.tcc \
  /home/gemini/Project/New_chat/src/utils/logger.hpp \
  /usr/include/c++/11/sstream /usr/include/c++/11/istream \
  /usr/include/c++/11/ios /usr/include/c++/11/bits/ios_base.h \
